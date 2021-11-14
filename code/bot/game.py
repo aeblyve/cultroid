@@ -1,111 +1,99 @@
 #!/usr/bin/env python3
 
-
 import random
-import typing
-import unittest
+
+T_PIECE = ((0, 0), (0, -1, "r"), (-1, 0, "r"), (0, 0, "r"), (1, 0, "r"))
+
+PIECES = [T_PIECE]
 
 class TetrisGame():
-    """Our search-problem class"""
+    """A problem statement for a tetris-like game"""
+    pass
 
-    def __init__(self):
+
+
+
+
+class CheeseGame(TetrisGame):
+
+    def get_successors(state):
+        """
+        You can:
+        + Move down
+        + Move right
+        + Move left
+        + Rotate
+        Each is "one state".
+        """
         pass
 
-    def add_piece(self):
-        """Add a specific piece to the game"""
-        pass
+    def get_initial_state():
+        return send_garbage(generate_state(), "c", 9, 1)
 
-    def next_piece(self):
-        pass
+    def is_terminal(state):
+        piece, grid = state
+        return grid[len(grid)-1][0] != "c"
 
-    def is_terminal(self, state: 'TetrisState'):
-        """Can be re-implemented based on subclass of game"""
-        # Default: there exists a block greater than the "roof"
-        pass
+def state2string(state):
+    piece, grid = state
+    rep = []
+    st = ""
+    for row in grid:
+        rep.append(row)
+    for i in range(1, len(piece)):
+        x, y, label = piece[i]
+        if x in range(len(grid[0])) and y in range(len(grid)):
+            rep[y] = rep[y][:x] + label + rep[y][x:-1]
+    for row in rep:
+        st += "|" + row + "|\n"
+    return st
 
-    def get_succs(self):
-        pass
+def send_garbage(state, garbage_label, garbage_count, hole_count):
+    piece, grid = state
 
-class TetrisState():
-    """Tetris states are all the same really
-    - it's a driver TetrisGame that differentiates gametypes
-    """
-    def __init__(self, block_grid: 'BlockGrid', piece: 'Piece'):
-        self.block_grid = BlockGrid()
-        self.current_piece = piece
+    new_grid = []
+    for i in range(len(grid) - garbage_count):
+        new_grid.append(grid[i + garbage_count])
 
-class Piece():
-    """A collection of blocks- limited to 5x5
-    Pieces rotate about the center at (2, 2) - sculpt accordingly
-    """
+    for g in range(len(grid) - garbage_count, len(grid)):
+        to_hole = hole_count
+        garbage_row = garbage_label * len(grid[0])
 
-    def __init__(self, block_label: str, block_coordinates: list):
-        self.piece_grid = []
-        for i in range(5):
-            self.piece_grid.append([Block("empty")] * 5)
-        for x, y in block_coordinates:
-            self.piece_grid[x][y] = Block(block_label)
+        while to_hole != 0:
+            hole_index = random.choice(range(len(grid[0])))
+            garbage_row = garbage_row[:hole_index] + " " + garbage_row[hole_index:-1]
+            to_hole -=1
+        new_grid.append(garbage_row)
+    return (piece, tuple(new_grid))
 
-    def left_rotate(self):
-        for y in range(len(self.piece_grid)):
-            for x in range(len(self.piece_grid[0])):
-                if x == 2 and y == 2:
-                    # can't rotate the center this way- but the center never changes anyway
-                    continue
-                offset_x, offset_y = (x - 2, y - 2)
-                new_offset_x, new_offset_y = (offset_y, -1 * offset_x)
-                new_x, new_y = (new_offset_x + 2, new_offset_y + 2)
-                self.piece_grid[new_y][new_x] = self.piece_grid[y][x]
+def generate_state(x_dimension=10, y_dimension=20):
+    piece = random.choice(PIECES)
+    new_center = (x_dimension // 2, 0)
+    piece = recenter_piece(piece, new_center)
+    grid = []
+    for y in range(y_dimension):
+        grid.append(" " * x_dimension)
+    return (piece, tuple(grid))
 
+def recenter_piece(piece, new_center):
+    new_center_x, new_center_y = new_center
+    old_center_x, old_center_y = piece[0]
+    new_piece = [new_center]
+    for i in range(1, len(piece)):
+        x, y, label = piece[i]
+        offset_x, offset_y = (x - old_center_x, y - old_center_y)
+        new_x, new_y = (offset_x + new_center_x, offset_y + new_center_y)
+        new_piece.append((new_x, new_y, label))
+    return tuple(new_piece)
 
-class Block():
-    def __init__(self, label):
-        self.label = label
-
-    def __repr__(self):
-        if self.label == "empty":
-            return " "
-        else:
-            return "x"
-
-    def __eq__(self, o):
-        return self.label == o.label
-
-
-class BlockGrid():
-
-    def __init__(self, x_dimension=10, y_dimension=20):
-        self.grid = []
-        self.x_dimension = x_dimension
-        self.y_dimension = y_dimension
-
-        for y in range(y_dimension):
-            self.grid.append([Block("empty")] * x_dimension)
-
-    def send_garbage(self, garbage_count: int, garbage_label: str, hole_count: int):
-        if hole_count > self.x_dimension:
-            raise RuntimeError
-        for garbage_y in range(garbage_count):
-            garbage_row = [Block(garbage_label)] * self.x_dimension
-            while hole_count != 0:
-                new_hole_index = random.choice(range(self.x_dimension))
-                if garbage_row[new_hole_index] != Block("empty"):
-                    garbage_row[new_hole_index] = Block("empty")
-                    hole_count -= 1
-            self.grid[self.y_dimension - garbage_y -1] = garbage_row
-
-    def __repr__(self):
-        repr = ""
-        for row in self.grid:
-            repr += "|"
-            for block in row:
-                repr += block.__repr__()
-            repr += "|\n"
-        return repr
-
-def main():
-    print("foobar")
-
-
-if __name__ == "__main__":
-    main()
+def rotate_left(state):
+    piece, grid = state
+    center_x, center_y = piece[0]
+    new_piece = [piece[0]]
+    for i in range(1, len(piece)):
+        x, y, label = piece[i]
+        offset_x, offset_y = (x - center_x, y - center_y)
+        new_offset_x, new_offset_y = (offset_y, -1 * offset_x)
+        new_x, new_y = (new_offset_x + center_x, new_offset_y + center_y)
+        new_piece.append((new_x, new_y, label))
+    return tuple(new_piece), grid
