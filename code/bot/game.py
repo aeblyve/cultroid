@@ -3,6 +3,7 @@
 
 import random
 import typing
+import unittest
 
 class TetrisGame():
     """Our search-problem class"""
@@ -35,7 +36,7 @@ class TetrisState():
 
 class Piece():
     """A collection of blocks- limited to 5x5
-    Pieces rotate about the geometric center at (2, 2) - sculpt accordingly
+    Pieces rotate about the center at (2, 2) - sculpt accordingly
     """
 
     def __init__(self, block_label: str, block_coordinates: list):
@@ -46,7 +47,16 @@ class Piece():
             self.piece_grid[x][y] = Block(block_label)
 
     def left_rotate(self):
-        pass
+        for y in range(len(self.piece_grid)):
+            for x in range(len(self.piece_grid[0])):
+                if x == 2 and y == 2:
+                    # can't rotate the center this way- but the center never changes anyway
+                    continue
+                offset_x, offset_y = (x - 2, y - 2)
+                new_offset_x, new_offset_y = (offset_y, -1 * offset_x)
+                new_x, new_y = (new_offset_x + 2, new_offset_y + 2)
+                self.piece_grid[new_y][new_x] = self.piece_grid[y][x]
+
 
 class Block():
     def __init__(self, label):
