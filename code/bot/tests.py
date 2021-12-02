@@ -10,7 +10,7 @@ class TestState(unittest.TestCase):
         state = game.generate_state()
         print("Behold a tetris state:")
         print(game.state2string(state))
-        state = game.rotate_piece(state)
+        state = game.rotate_right(state)
         print("Behold a rotation:")
         print(game.state2string(state))
         state = game.send_garbage(state, "c", 9, 3)

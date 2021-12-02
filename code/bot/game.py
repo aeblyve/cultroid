@@ -27,12 +27,18 @@ class CheeseGame(TetrisGame):
         """
         pass
 
-    def get_initial_state():
+    def get_initial_state(self):
         return send_garbage(generate_state(), "c", 9, 1)
 
     def is_terminal(state):
         piece, grid = state
         return grid[len(grid)-1][0] != "c"
+
+"Note: It might not be a bad idea to have the state/grid as an object" \
+"We would just have to have it be immutable after initalization and we could use it like tuples " \
+"(and have all functions which change it just retrun the succesor object without mutation)" \
+"It may be more effor than it's worth but that way if we need to make any changes it won't have" \
+"to be so hard coded"
 
 def state2string(state):
     piece, grid = state
@@ -86,6 +92,8 @@ def recenter_piece(piece, new_center):
         new_piece.append((new_x, new_y, label))
     return tuple(new_piece)
 
+"maybe we could do rotation with a matrix to avoid code duplication but idk lmk what you think, or" \
+"we could just have each rotation be some amount of rotation left"
 def rotate_left(state):
     piece, grid = state
     center_x, center_y = piece[0]
@@ -97,3 +105,25 @@ def rotate_left(state):
         new_x, new_y = (new_offset_x + center_x, new_offset_y + center_y)
         new_piece.append((new_x, new_y, label))
     return tuple(new_piece), grid
+
+def rotate_right(state):
+    piece, grid = state
+    center_x, center_y = piece[0]
+    new_piece = [piece[0]]
+    for i in range(1, len(piece)):
+        x, y, label = piece[i]
+        offset_x, offset_y = (x - center_x, y - center_y)
+        new_offset_x, new_offset_y = (-1 * offset_y, offset_x)
+        new_x, new_y = (new_offset_x + center_x, new_offset_y + center_y)
+        new_piece.append((new_x, new_y, label))
+    return tuple(new_piece), grid
+
+"Assume all pieces merged to grid are legal, so only have to make sure piece is legal"
+def isLegal(state):
+    piece, grid = state
+    for i in range(1, len(piece)):
+        x, y, label = piece[i]
+        if x < 0 or x >= len(grid[0]) or y < 0 or y >= len(grid):
+            return False
+    return True
+
