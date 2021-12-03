@@ -81,6 +81,9 @@ class CheeseGame:
     def __init__(self):
         self.randomizer = SimpleRandomizer(PIECES)
 
+    def get_start_state(self):
+        return new_cheese_state(x_dimension=10, y_dimension=20)
+
     def successors(self, state):
 
         go_down_succ = state.move_anchor(0, 1)
@@ -103,16 +106,19 @@ class CheeseGame:
 
         return filter(lambda x: x[0].is_legal(), successors)
 
-    def is_terminal(self, state):
-        """Illegal states and cleared cheese is terminal
-        If terminal, return the utility, else 0
-        """
-        if not state.is_legal():
-            return -100
-        elif state.is_clear():
-            return 100
-        else:
-            return 0
+    # def is_terminal(self, state):
+    #     """Illegal states and cleared cheese is terminal
+    #     If terminal, return the utility, else 0
+    #     """
+    #     if not state.is_legal():
+    #         return -100
+    #     elif state.is_clear():
+    #         return 100
+    #     else:
+    #         return 0
+
+    def is_goal(self, state):
+        return state.is_clear()
 
 
 class Randomizer:
