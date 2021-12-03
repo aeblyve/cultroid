@@ -1,78 +1,127 @@
 #!/usr/bin/env python3
 
-import random
+import random, copy
 
-T_PIECE = ((0, 0), (0, -1, "b"), (-1, 0, "b"), (0, 0, "b"), (1, 0, "b"))
-L_PIECE = ((0, 0), (0, 0, "b"), (1, 0, "b"), (0, -1, "b"), (0, -2, "b"))
-J_PIECE = ((0, 0), (0, 0, "b"), (-1, 0, "b"), (0, -1, "b"), (0, -2, "b"))
-O_PIECE = ((0, 0), (0, 0, "b"), (1, 0, "b"), (0, -1, "b"), (1, -1, "b"))
-S_PIECE = ((0, 0), (0, 0, "b"), (-1, 0, "b"), (0, -1, "b"), (1, -1, "b"))
-Z_PIECE = ((0, 0), (0, 0, "b"), (-1, 0, "b"), (0, -1, "b"), (1, -1, "b"))
-I_PIECE = ((0, 0), (0, 0, "b"), (0, -1, "b"), (0, -2, "b"), (0, -3, "b"))
+T_PIECE = ((0, -1, "b"), (-1, 0, "b"), (0, 0, "b"), (1, 0, "b"))
+L_PIECE = ((0, 0, "b"), (1, 0, "b"), (0, -1, "b"), (0, -2, "b"))
+J_PIECE = ((0, 0, "b"), (-1, 0, "b"), (0, -1, "b"), (0, -2, "b"))
+O_PIECE = ((0, 0, "b"), (1, 0, "b"), (0, -1, "b"), (1, -1, "b"))
+S_PIECE = ((0, 0, "b"), (-1, 0, "b"), (0, -1, "b"), (1, -1, "b"))
+Z_PIECE = ((0, 0, "b"), (-1, 0, "b"), (0, -1, "b"), (1, -1, "b"))
+I_PIECE = ((0, 0, "b"), (0, -1, "b"), (0, -2, "b"), (0, -3, "b"))
 
 PIECES = [T_PIECE, L_PIECE, J_PIECE, O_PIECE, S_PIECE, Z_PIECE, I_PIECE]
 # TODO set up gamestate/successor
+#
+
+BLANK_LABEL = "_"
+CHEESE_LABEL = "c"
 
 
-class TetrisGame:
-    """A problem statement for a tetris-like game"""
+class TetrisState:
+    """Generic state"""
 
     pass
 
 
-class CheeseGame(TetrisGame):
-    def get_successors(state):
-        """
-        You can:
-        + Move down
-        + Move right
-        + Move left
-        + Rotate
-        Each is "one state".
-        """
-        piece, grid = state
-        center_x, center_y = piece[0]
-        # compute all states: only return valid ones
-        go_down_state = (recenter_piece(piece, (center_x, center_y - 1)), grid)
-        go_right_state = (recenter_piece(piece, (center_x + 1, center_y)), grid)
-        go_left_state = (recenter_piece(piece, (center_x - 1, center_y)), grid)
-        rotate_left_state = rotate_left(state)
-        rotate_right_state = rotate_right(state)
-        # TODO: "lock in state"
-        # TODO: "hard drop" state
-        states = [
-            go_down_state,
-            go_right_state,
-            go_left_state,
-            rotate_left_state,
-            rotate_right_state,
-        ]
-        return list(filter(is_legal), states)
+def new_cheese_state(
+    x_dimension=10, y_dimension=20, hole_count=1, cheese_count=9, piece=None
+):
+    # TODO init garbage - 9 rows of 1 hole
 
-    def get_initial_state(self):
-        return send_garbage(generate_state(), "c", 9, 1)
+    if piece is None:
+        piece = random.choice(PIECES)
+    grid = []
+    for y in range(y_dimension):
+        row = [BLANK_LABEL] * x_dimension
+        grid.append(tuple(row))
 
-    def is_terminal(state):
-        piece, grid = state
-        return grid[len(grid) - 1][0] != "c"
+    for g in range(y_dimension - cheese_count, len(grid)):
+        to_hole = hole_count
+        cheese_row = [CHEESE_LABEL] * x_dimension
+
+        while to_hole != 0:
+            hole_index = random.choice(range(x_dimension))
+            cheese_row[hole_index] = BLANK_LABEL
+            to_hole -= 1
+        grid[g] = tuple(cheese_row)
+
+    grid = tuple(grid)
+    spawn = (x_dimension // 2, 0)
+    mapped_piece = shift_piece(piece, spawn[0], spawn[1])
+
+    return CheeseState(spawn, mapped_piece, grid)
+
+    # piece, grid = state
+
+    # new_grid = []
+    # for i in range(len(grid) - garbage_count):
+    #     new_grid.append(grid[i + garbage_count])
+
+    # for g in range(len(grid) - garbage_count, len(grid)):
+    #     to_hole = hole_count
+    #     garbage_row = garbage_label * len(grid[0])
+
+    #     while to_hole != 0:
+    #         hole_index = random.choice(range(len(grid[0])))
+    #         garbage_row = garbage_row[:hole_index] + " " + garbage_row[hole_index:-1]
+    #         to_hole -= 1
+    #     new_grid.append(garbage_row)
+    # new_state = (piece, tuple(new_grid))
+    # return (piece, tuple(new_grid))
 
 
-"Note: It might not be a bad idea to have the state/grid as an object" "We would just have to have it be immutable after initalization and we could use it like tuples " "(and have all functions which change it just retrun the succesor object without mutation)" "It may be more effor than it's worth but that way if we need to make any changes it won't have" "to be so hard coded"
-
-
-def state2string(state):
-    piece, grid = state
-    rep = []
-    st = ""
-    for row in grid:
-        rep.append(row)
-    for i in range(1, len(piece)):
+def shift_piece(piece, x_shift, y_shift):
+    """Shift every coordinate in piece"""
+    new_piece = []
+    for i in range(len(piece)):
         x, y, label = piece[i]
-        if x in range(len(grid[0])) and y in range(len(grid)):
-            rep[y] = rep[y][:x] + label + rep[y][x:-1]
-    for row in rep:
-        st += "|" + row + "|\n"
-    return st
+        new_brick = (x + x_shift, y + y_shift, label)
+        new_piece.append(new_brick)
+    return tuple(new_piece)
+
+
+class CheeseState:
+    """CheeseState- may be illegal"""
+
+    def __init__(self, anchor, piece, grid):
+        self.anchor = anchor  # one position
+        self.piece = piece  # list of positions
+        self.grid = grid  # list of list of one-char strings
+
+    def move_anchor(self, x_shift, y_shift):
+        """Return a new state with moved anchor and piece."""
+        anchor_x, anchor_y = self.anchor
+        # tuple addition?
+        new_anchor = (anchor_x + x_shift, anchor_y + y_shift)
+        new_piece = shift_piece(self.piece, x_shift, y_shift)
+        return CheeseState(new_anchor, new_piece, self.grid)
+
+    def is_legal(self):
+        """Illegal if oob or intersecting"""
+        for i in range(len(self.piece)):
+            x, y, label = self.piece[i]
+            if x < 0 or x >= len(self.grid[0]) or y < 0 or grid[y][x] != BLANK_LABEL:
+                return False
+        return True
+
+    def __repr__(self):
+        rep = []
+        st = ""
+
+        for row in self.grid:
+            rep.append(list(row))
+        for i in range(len(self.piece)):
+            x, y, label = self.piece[i]
+            if x in range(len(self.grid[0])) and y in range(len(self.grid)):
+                rep[y][x] = label
+        count = 0
+        for row in rep:
+            for block in row:
+                st += block
+            st += f" {count}\n"
+            count += 1
+        return st
 
 
 def send_garbage(state, garbage_label, garbage_count, hole_count):
