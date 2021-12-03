@@ -84,14 +84,14 @@ class CheeseGame:
     def get_start_state(self):
         return new_cheese_state(x_dimension=10, y_dimension=20)
 
-    def successors(self, state):
+    def get_successors(self, state):
 
         go_down_succ = state.move_anchor(0, 1)
         go_left_succ = state.move_anchor(-1, 0)
         go_right_succ = state.move_anchor(1, 0)
         rotate_left_succ = state.rotate_left()
         rotate_right_succ = state.rotate_right()
-        lock_succ = state.lock(self.randomizer)
+        lock_succ = state.lock_piece(self.randomizer)
         hard_succ = state.hard_drop(self.randomizer)
         # each action costs 1
         successors = [

@@ -1,8 +1,16 @@
 #!/usr/bin/env python3
 
-import unittest
-import game
+import unittest, game, search
 from game import BLANK_LABEL
+
+
+# class TestSearch(unittest.TestCase):
+#     def test_bfs(self):
+#     donut run this
+#         cheese_game = game.CheeseGame()
+#         path = search.breadth_first_search(cheese_game)
+#         # and now we wait...
+#         print(path)
 
 
 class TestState(unittest.TestCase):
