@@ -11,6 +11,7 @@ Z_PIECE = ((0, 0), (0, 0, "b"), (-1, 0, "b"), (0, -1, "b"), (1, -1, "b"))
 I_PIECE = ((0, 0), (0, 0, "b"), (0, -1, "b"), (0, -2, "b"), (0, -3, "b"))
 
 PIECES = [T_PIECE, L_PIECE, J_PIECE, O_PIECE, S_PIECE, Z_PIECE, I_PIECE]
+# TODO set up gamestate/successor
 
 
 class TetrisGame:
@@ -29,7 +30,24 @@ class CheeseGame(TetrisGame):
         + Rotate
         Each is "one state".
         """
-        pass
+        piece, grid = state
+        center_x, center_y = piece[0]
+        # compute all states: only return valid ones
+        go_down_state = (recenter_piece(piece, (center_x, center_y - 1)), grid)
+        go_right_state = (recenter_piece(piece, (center_x + 1, center_y)), grid)
+        go_left_state = (recenter_piece(piece, (center_x - 1, center_y)), grid)
+        rotate_left_state = rotate_left(state)
+        rotate_right_state = rotate_right(state)
+        # TODO: "lock in state"
+        # TODO: "hard drop" state
+        states = [
+            go_down_state,
+            go_right_state,
+            go_left_state,
+            rotate_left_state,
+            rotate_right_state,
+        ]
+        return list(filter(is_legal), states)
 
     def get_initial_state(self):
         return send_garbage(generate_state(), "c", 9, 1)
@@ -73,6 +91,7 @@ def send_garbage(state, garbage_label, garbage_count, hole_count):
             garbage_row = garbage_row[:hole_index] + " " + garbage_row[hole_index:-1]
             to_hole -= 1
         new_grid.append(garbage_row)
+    new_state = (piece, tuple(new_grid))
     return (piece, tuple(new_grid))
 
 
