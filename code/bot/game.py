@@ -111,8 +111,6 @@ def clear_rows(grid):
     x_dimension = len(grid[0])
     blank_row = tuple([BLANK_LABEL] * x_dimension)
     filtered = list(filter(lambda x: not row_is_full(x), grid))
-    # prepend rows until match y_dimension
-
     for _ in range(y_dimension - len(filtered)):
         filtered.insert(0, blank_row)
     return tuple(filtered)
@@ -181,6 +179,18 @@ class CheeseState(TetrisState):
             return CheeseState(self.spawn, self.spawn, mapped_piece, new_grid)
         else:
             return CheeseState(self.spawn, self.anchor, self.piece, self.grid)
+
+    def hard_drop(self, randomizer):
+        y_delta = float("inf")
+
+        for x, y, label in self.piece:
+            for y_i in range(y, len(self.grid)):
+                if self.grid[y_i][x] != BLANK_LABEL and not y < 0:
+                    y_delta = min(y_delta, y_i - y)
+                    break
+
+        new_state = self.move_anchor(0, y_delta - 1)
+        return new_state.lock_piece(randomizer)
 
     def __repr__(self):
         rep = []
