@@ -10,6 +10,10 @@ class TestState(unittest.TestCase):
         print(state)
         state = state.move_anchor(0, 1)
         print(state)
+        state = state.rotate_left()
+        print(state)
+        state = state.rotate_right()
+        print(state)
 
 
 if __name__ == "__main__":
