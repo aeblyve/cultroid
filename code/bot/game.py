@@ -130,6 +130,17 @@ def rotate_left(state):
     return tuple(new_piece), grid
 
 
+def hard_drop(state):
+    """Move the current piece down until it can't go down anymore, then lock it"""
+    pass
+
+
+def lock(state):
+    """If a piece can rest on the brickstack, rest it"""
+    piece, grid = state
+    pass
+
+
 def rotate_right(state):
     piece, grid = state
     center_x, center_y = piece[0]
