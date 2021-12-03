@@ -2,20 +2,24 @@
 
 import random
 
-T_PIECE = ((0, 0), (0, -1, "r"), (-1, 0, "r"), (0, 0, "r"), (1, 0, "r"))
+T_PIECE = ((0, 0), (0, -1, "b"), (-1, 0, "b"), (0, 0, "b"), (1, 0, "b"))
+L_PIECE = ((0, 0), (0, 0, "b"), (1, 0, "b"), (0, -1, "b"), (0, -2, "b"))
+J_PIECE = ((0, 0), (0, 0, "b"), (-1, 0, "b"), (0, -1, "b"), (0, -2, "b"))
+O_PIECE = ((0, 0), (0, 0, "b"), (1, 0, "b"), (0, -1, "b"), (1, -1, "b"))
+S_PIECE = ((0, 0), (0, 0, "b"), (-1, 0, "b"), (0, -1, "b"), (1, -1, "b"))
+Z_PIECE = ((0, 0), (0, 0, "b"), (-1, 0, "b"), (0, -1, "b"), (1, -1, "b"))
+I_PIECE = ((0, 0), (0, 0, "b"), (0, -1, "b"), (0, -2, "b"), (0, -3, "b"))
 
-PIECES = [T_PIECE]
+PIECES = [T_PIECE, L_PIECE, J_PIECE, O_PIECE, S_PIECE, Z_PIECE, I_PIECE]
 
-class TetrisGame():
+
+class TetrisGame:
     """A problem statement for a tetris-like game"""
+
     pass
 
 
-
-
-
 class CheeseGame(TetrisGame):
-
     def get_successors(state):
         """
         You can:
@@ -32,13 +36,11 @@ class CheeseGame(TetrisGame):
 
     def is_terminal(state):
         piece, grid = state
-        return grid[len(grid)-1][0] != "c"
+        return grid[len(grid) - 1][0] != "c"
 
-"Note: It might not be a bad idea to have the state/grid as an object" \
-"We would just have to have it be immutable after initalization and we could use it like tuples " \
-"(and have all functions which change it just retrun the succesor object without mutation)" \
-"It may be more effor than it's worth but that way if we need to make any changes it won't have" \
-"to be so hard coded"
+
+"Note: It might not be a bad idea to have the state/grid as an object" "We would just have to have it be immutable after initalization and we could use it like tuples " "(and have all functions which change it just retrun the succesor object without mutation)" "It may be more effor than it's worth but that way if we need to make any changes it won't have" "to be so hard coded"
+
 
 def state2string(state):
     piece, grid = state
@@ -54,6 +56,7 @@ def state2string(state):
         st += "|" + row + "|\n"
     return st
 
+
 def send_garbage(state, garbage_label, garbage_count, hole_count):
     piece, grid = state
 
@@ -68,9 +71,10 @@ def send_garbage(state, garbage_label, garbage_count, hole_count):
         while to_hole != 0:
             hole_index = random.choice(range(len(grid[0])))
             garbage_row = garbage_row[:hole_index] + " " + garbage_row[hole_index:-1]
-            to_hole -=1
+            to_hole -= 1
         new_grid.append(garbage_row)
     return (piece, tuple(new_grid))
+
 
 def generate_state(x_dimension=10, y_dimension=20):
     piece = random.choice(PIECES)
@@ -80,6 +84,7 @@ def generate_state(x_dimension=10, y_dimension=20):
     for y in range(y_dimension):
         grid.append(" " * x_dimension)
     return (piece, tuple(grid))
+
 
 def recenter_piece(piece, new_center):
     new_center_x, new_center_y = new_center
@@ -92,8 +97,7 @@ def recenter_piece(piece, new_center):
         new_piece.append((new_x, new_y, label))
     return tuple(new_piece)
 
-"maybe we could do rotation with a matrix to avoid code duplication but idk lmk what you think, or" \
-"we could just have each rotation be some amount of rotation left"
+
 def rotate_left(state):
     piece, grid = state
     center_x, center_y = piece[0]
@@ -105,6 +109,7 @@ def rotate_left(state):
         new_x, new_y = (new_offset_x + center_x, new_offset_y + center_y)
         new_piece.append((new_x, new_y, label))
     return tuple(new_piece), grid
+
 
 def rotate_right(state):
     piece, grid = state
@@ -118,12 +123,14 @@ def rotate_right(state):
         new_piece.append((new_x, new_y, label))
     return tuple(new_piece), grid
 
-"Assume all pieces merged to grid are legal, so only have to make sure piece is legal"
-def isLegal(state):
+
+def is_legal(state):
+    """State is illegal if the piece is oob or intersecting
+    Going over the top is not oob
+    """
     piece, grid = state
     for i in range(1, len(piece)):
         x, y, label = piece[i]
-        if x < 0 or x >= len(grid[0]) or y < 0 or y >= len(grid):
+        if x < 0 or x >= len(grid[0]) or y < 0 or grid[y][x] != " ":
             return False
     return True
-
