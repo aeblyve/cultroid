@@ -64,6 +64,7 @@ def shift_piece(piece, x_shift, y_shift):
         new_piece.append(new_brick)
     return tuple(new_piece)
 
+
 class CheeseActions(Enum):
     DOWN = 1
     LEFT = 2
@@ -73,26 +74,24 @@ class CheeseActions(Enum):
     LOCK = 6
     HARD = 7
 
+
 class CheeseGame:
     """Clear all the cheese to win."""
 
     def __init__(self):
         self.randomizer = SimpleRandomizer(PIECES)
 
-   def successors(self, state):
+    def successors(self, state):
 
-       go_down_succ = state.move_anchor(0, 1)
-       go_left_succ = state.move_anchor(-1, 0)
-       go_right_succ = state.move_anchor(1, 0)
-       rotate_left_succ = state.rotate_left()
-       rotate_right_succ = state.rotate_right()
-       lock_succ = state.lock(self.randomizer)
-       # TODO
-       hard_succ
+        go_down_succ = state.move_anchor(0, 1)
+        go_left_succ = state.move_anchor(-1, 0)
+        go_right_succ = state.move_anchor(1, 0)
+        rotate_left_succ = state.rotate_left()
+        rotate_right_succ = state.rotate_right()
+        lock_succ = state.lock(self.randomizer)
+        # TODO hard_succ
 
-
-       pass
-
+        pass
 
 
 class Randomizer:
@@ -110,11 +109,11 @@ def clear_rows(grid):
     """Clear full rows."""
     y_dimension = len(grid)
     x_dimension = len(grid[0])
-    blank_row = tuple([" "] * x_dimension)
-    filtered = list(filter(row_is_full, grid))
+    blank_row = tuple([BLANK_LABEL] * x_dimension)
+    filtered = list(filter(lambda x: not row_is_full(x), grid))
     # prepend rows until match y_dimension
 
-    for _ in y_dimension - len(filtered):
+    for _ in range(y_dimension - len(filtered)):
         filtered.insert(0, blank_row)
     return tuple(filtered)
 
@@ -147,7 +146,12 @@ class CheeseState(TetrisState):
     def is_legal(self):
         """Illegal if oob or intersecting"""
         for x, y, label in self.piece:
-            if x < 0 or x >= len(self.grid[0]) or y < 0 or grid[y][x] != BLANK_LABEL:
+            if (
+                x < 0
+                or x >= len(self.grid[0])
+                or y < 0
+                or self.grid[y][x] != BLANK_LABEL
+            ):
                 return False
         return True
 
