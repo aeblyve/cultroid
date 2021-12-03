@@ -101,14 +101,34 @@ class CheeseState(TetrisState):
 
     def is_legal(self):
         """Illegal if oob or intersecting"""
-        for i in range(len(self.piece)):
-            x, y, label = self.piece[i]
+        for x, y, label in self.piece:
             if x < 0 or x >= len(self.grid[0]) or y < 0 or grid[y][x] != BLANK_LABEL:
                 return False
         return True
 
     def lock_piece(self, randomizer):
         """Fix the current piece to the board if possible, and get a new one"""
+        # TODO suboptimal
+
+        can_lock = False
+        for x, y, label in self.piece:
+            if y == len(self.grid) - 1 or self.grid[y + 1][x] != BLANK_LABEL:
+                can_lock = True
+                break
+        if can_lock and self.is_legal():
+            new_grid = []
+            for row in self.grid:
+                new_grid.append(list(row))
+            for x, y, label in self.piece:
+                new_grid[y][x] = label
+            for i in range(len(new_grid)):
+                new_grid[i] = tuple(new_grid[i])
+            new_grid = tuple(new_grid)
+            new_piece = randomizer.choice()
+            mapped_piece = shift_piece(new_piece, self.spawn[0], self.spawn[1])
+            return CheeseState(self.spawn, self.spawn, mapped_piece, new_grid)
+        else:
+            return CheeseState(self.spawn, self.anchor, self.piece, self.grid)
 
     def __repr__(self):
         rep = []
@@ -116,8 +136,7 @@ class CheeseState(TetrisState):
 
         for row in self.grid:
             rep.append(list(row))
-        for i in range(len(self.piece)):
-            x, y, label = self.piece[i]
+        for x, y, label in self.piece:
             if x in range(len(self.grid[0])) and y in range(len(self.grid)):
                 rep[y][x] = label
         count = 0
@@ -131,8 +150,7 @@ class CheeseState(TetrisState):
     def rotate_left(self):
         new_piece = []
         anchor_x, anchor_y = self.anchor
-        for i in range(len(self.piece)):
-            x, y, label = self.piece[i]
+        for x, y, label in self.piece:
             offset_x, offset_y = (x - anchor_x, y - anchor_y)
             new_offset_x, new_offset_y = (offset_y, -1 * offset_x)
             new_x, new_y = (new_offset_x + anchor_x, new_offset_y + anchor_y)
@@ -143,8 +161,7 @@ class CheeseState(TetrisState):
     def rotate_right(self):
         new_piece = []
         anchor_x, anchor_y = self.anchor
-        for i in range(len(self.piece)):
-            x, y, label = self.piece[i]
+        for x, y, label in self.piece:
             offset_x, offset_y = (x - anchor_x, y - anchor_y)
             new_offset_x, new_offset_y = (-1 * offset_y, offset_x)
             new_x, new_y = (new_offset_x + anchor_x, new_offset_y + anchor_y)
