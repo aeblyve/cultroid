@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import random, copy
+from enum import Enum
 
 T_PIECE = ((0, -1, "b"), (-1, 0, "b"), (0, 0, "b"), (1, 0, "b"))
 L_PIECE = ((0, 0, "b"), (1, 0, "b"), (0, -1, "b"), (0, -2, "b"))
@@ -63,15 +64,59 @@ def shift_piece(piece, x_shift, y_shift):
         new_piece.append(new_brick)
     return tuple(new_piece)
 
+class CheeseActions(Enum):
+    DOWN = 1
+    LEFT = 2
+    RIGHT = 3
+    RLEFT = 4
+    RRIGHT = 5
+    LOCK = 6
+    HARD = 7
 
 class CheeseGame:
     """Clear all the cheese to win."""
 
-    pass
+    def __init__(self):
+        self.randomizer = SimpleRandomizer(PIECES)
+
+   def successors(self, state):
+
+       go_down_succ = state.move_anchor(0, 1)
+       go_left_succ = state.move_anchor(-1, 0)
+       go_right_succ = state.move_anchor(1, 0)
+       rotate_left_succ = state.rotate_left()
+       rotate_right_succ = state.rotate_right()
+       lock_succ = state.lock(self.randomizer)
+       # TODO
+       hard_succ
+
+
+       pass
+
 
 
 class Randomizer:
     pass
+
+
+def row_is_full(row):
+    for block in row:
+        if block == BLANK_LABEL:
+            return False
+    return True
+
+
+def clear_rows(grid):
+    """Clear full rows."""
+    y_dimension = len(grid)
+    x_dimension = len(grid[0])
+    blank_row = tuple([" "] * x_dimension)
+    filtered = list(filter(row_is_full, grid))
+    # prepend rows until match y_dimension
+
+    for _ in y_dimension - len(filtered):
+        filtered.insert(0, blank_row)
+    return tuple(filtered)
 
 
 class SimpleRandomizer(Randomizer):
@@ -106,15 +151,16 @@ class CheeseState(TetrisState):
                 return False
         return True
 
+    def can_lock(self):
+        for x, y, label in self.piece:
+            if y == len(self.grid) - 1 or self.grid[y + 1][x] != BLANK_LABEL:
+                return True
+        return False
+
     def lock_piece(self, randomizer):
         """Fix the current piece to the board if possible, and get a new one"""
         # TODO suboptimal
-
-        can_lock = False
-        for x, y, label in self.piece:
-            if y == len(self.grid) - 1 or self.grid[y + 1][x] != BLANK_LABEL:
-                can_lock = True
-                break
+        can_lock = self.can_lock()
         if can_lock and self.is_legal():
             new_grid = []
             for row in self.grid:
@@ -124,8 +170,10 @@ class CheeseState(TetrisState):
             for i in range(len(new_grid)):
                 new_grid[i] = tuple(new_grid[i])
             new_grid = tuple(new_grid)
+            new_grid = clear_rows(new_grid)
             new_piece = randomizer.choice()
             mapped_piece = shift_piece(new_piece, self.spawn[0], self.spawn[1])
+
             return CheeseState(self.spawn, self.spawn, mapped_piece, new_grid)
         else:
             return CheeseState(self.spawn, self.anchor, self.piece, self.grid)
