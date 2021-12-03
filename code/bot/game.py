@@ -89,9 +89,30 @@ class CheeseGame:
         rotate_left_succ = state.rotate_left()
         rotate_right_succ = state.rotate_right()
         lock_succ = state.lock(self.randomizer)
-        # TODO hard_succ
+        hard_succ = state.hard_drop(self.randomizer)
+        # each action costs 1
+        successors = [
+            (go_down_succ, CheeseActions.DOWN, 1),
+            (go_left_succ, CheeseActions.LEFT, 1),
+            (go_right_succ, CheeseActions.RIGHT, 1),
+            (rotate_left_succ, CheeseActions.RLEFT, 1),
+            (rotate_right_succ, CheeseActions.RRIGHT, 1),
+            (lock_succ, CheeseActions.LOCK, 1),
+            (hard_succ, CheeseActions.HARD, 1),
+        ]
 
-        pass
+        return filter(lambda x: x[0].is_legal(), successors)
+
+    def is_terminal(self, state):
+        """Illegal states and cleared cheese is terminal
+        If terminal, return the utility, else 0
+        """
+        if not state.is_legal():
+            return -100
+        elif state.is_clear():
+            return 100
+        else:
+            return 0
 
 
 class Randomizer:
@@ -140,6 +161,10 @@ class CheeseState(TetrisState):
         new_anchor = (anchor_x + x_shift, anchor_y + y_shift)
         new_piece = shift_piece(self.piece, x_shift, y_shift)
         return CheeseState(self.spawn, new_anchor, new_piece, self.grid)
+
+    def is_clear(self):
+        """If the last row is clear, the whole stage is"""
+        return self.grid[len(self.grid) - 1][0] != CHEESE_LABEL
 
     def is_legal(self):
         """Illegal if oob or intersecting"""
