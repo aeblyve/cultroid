@@ -78,11 +78,15 @@ class CheeseActions(Enum):
 class CheeseGame:
     """Clear all the cheese to win."""
 
-    def __init__(self):
+    def __init__(self, x_dimension=10, y_dimension=20, hole_count=1, cheese_count=9):
         self.randomizer = SimpleRandomizer(PIECES)
+        self.x_dimension = x_dimension
+        self.y_dimension = y_dimension
+        self.hole_count = hole_count
+        self.cheese_count = cheese_count
 
     def get_start_state(self):
-        return new_cheese_state(x_dimension=10, y_dimension=20)
+        return new_cheese_state(self.x_dimension, self.y_dimension, self.hole_count, self.cheese_count)
 
     def get_successors(self, state):
 
@@ -179,6 +183,7 @@ class CheeseState(TetrisState):
                 x < 0
                 or x >= len(self.grid[0])
                 or y < 0
+                or y >= len(self.grid)
                 or self.grid[y][x] != BLANK_LABEL
             ):
                 return False
@@ -239,6 +244,13 @@ class CheeseState(TetrisState):
             st += f" {count}\n"
             count += 1
         return st
+
+    def __hash__(self):
+        return hash((self.piece, self.grid))
+
+    def __eq__(self, other):
+        if isinstance(other, CheeseState):
+            return (other.piece == self.piece) and (other.grid == self.grid)
 
     def rotate_left(self):
         new_piece = []
