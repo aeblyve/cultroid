@@ -47,17 +47,12 @@ def Astar_search(game, heurisitic):
     start_node = (game.get_start_state(), 0, [])
 
     frontier.push(start_node, 0)
-    #counter = 0
 
     while not frontier.empty():
-        #counter = counter + 1
         current_state, current_cost, current_path = frontier.pop()
 
-        #explored.add((current_state.piece, current_state.grid))
         explored.add(current_state)
-        #if counter % 100 == 0:
-        #    print(str(explored))
-        #print(str(current_state))
+        print(str(current_state))
         if game.is_goal(current_state):
             return current_path
 
@@ -72,6 +67,7 @@ def Astar_search(game, heurisitic):
                 frontier.update(new_node, new_node[1] + heurisitic(new_node[0]))
 
     # no path found
+    #print(str(explored))
     return []
 
 #code from CS188 Berkeley for PriorityQueue with update function modified

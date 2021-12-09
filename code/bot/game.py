@@ -182,9 +182,8 @@ class CheeseState(TetrisState):
             if (
                 x < 0
                 or x >= len(self.grid[0])
-                or y < 0
                 or y >= len(self.grid)
-                or self.grid[y][x] != BLANK_LABEL
+                or (y >= 0 and self.grid[y][x] != BLANK_LABEL)
             ):
                 return False
         return True
@@ -211,8 +210,8 @@ class CheeseState(TetrisState):
             new_grid = clear_rows(new_grid)
             new_piece = randomizer.choice()
             mapped_piece = shift_piece(new_piece, self.spawn[0], self.spawn[1])
-
-            return CheeseState(self.spawn, self.spawn, mapped_piece, new_grid)
+            toreturn = CheeseState(self.spawn, self.spawn, mapped_piece, new_grid)
+            return toreturn
         else:
             return CheeseState(self.spawn, self.anchor, self.piece, self.grid)
 

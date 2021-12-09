@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="97bc8603-daaa-4e24-9182-027e8593f66e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/code/bot/game.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/bot/game.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/bot/search.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/bot/search.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/bot/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/bot/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plan" beforeDir="false" afterPath="$PROJECT_DIR$/plan" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/proposal/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/proposal/.gitignore" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="21k54wA5QYiJlqJ1o9MT2tMLnXs" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="D:/School Stuff/CS 4100/Homework 1" />
+  </component>
+  <component name="RunManager" selected="Python.search">
+    <configuration name="search" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\robbi\anaconda3\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/code/bot" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/code/bot/search.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="true" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests for tests.TestState.test_repr" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="cultroid" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/code/bot" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;tests.TestState.test_repr&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.search" />
+      <item itemvalue="Python tests.Python tests for tests.TestState.test_repr" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.search" />
+        <item itemvalue="Python tests.Python tests for tests.TestState.test_repr" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="97bc8603-daaa-4e24-9182-027e8593f66e" name="Changes" comment="" />
+      <created>1638472057074</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1638472057074</updated>
+    </task>
+    <servers />
+  </component>
+</project>
