@@ -95,6 +95,10 @@ def Astar_search(game, heurisitic):
     return []
 
 
+def cheese_left_heuristic(state):
+    return state.num_cheese()
+
+
 # code from CS188 Berkeley for PriorityQueue with update function modified
 class PriorityQueue:
     """
@@ -134,8 +138,3 @@ class PriorityQueue:
                 break
         else:
             self.push(item, priority)
-
-
-from game import CheeseGame
-
-Astar_search(CheeseGame(), lambda a: 0)

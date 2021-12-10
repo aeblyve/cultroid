@@ -4,7 +4,18 @@ import unittest, game, search
 from game import BLANK_LABEL
 
 
-# class TestSearch(unittest.TestCase):
+class TestSearch(unittest.TestCase):
+    def test_astar(self):
+        cheese_game = game.CheeseGame()
+        path = search.Astar_search(cheese_game, search.cheese_left_heuristic)
+        print(path)
+
+    # def test_tdfs(self):
+    #     cheese_game = game.CheeseGame()
+    #     path = search.tree_depth_first_search(cheese_game)
+    #     print(path)
+
+
 #     def test_bfs(self):
 #     donut run this
 #         cheese_game = game.CheeseGame()

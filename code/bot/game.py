@@ -18,6 +18,13 @@ BLANK_LABEL = "_"
 CHEESE_LABEL = "c"
 
 
+def enumerate_rotations():
+    for piece in PIECES:
+        for i in range(4):
+            print(piece)
+            piece = rotate_left((0, 0), piece)
+
+
 class TetrisGame:
     """Generic game"""
 
@@ -86,7 +93,9 @@ class CheeseGame:
         self.cheese_count = cheese_count
 
     def get_start_state(self):
-        return new_cheese_state(self.x_dimension, self.y_dimension, self.hole_count, self.cheese_count)
+        return new_cheese_state(
+            self.x_dimension, self.y_dimension, self.hole_count, self.cheese_count
+        )
 
     def get_successors(self, state):
 
@@ -156,7 +165,7 @@ class SimpleRandomizer(Randomizer):
 
 
 class CheeseState(TetrisState):
-    """CheeseState- may be illegal"""
+    """CheeseState"""
 
     def __init__(self, spawn, anchor, piece, grid):
         self.spawn = spawn  # one position
@@ -164,13 +173,8 @@ class CheeseState(TetrisState):
         self.piece = piece  # list of positions
         self.grid = grid  # list of list of one-char strings
 
-    def move_anchor(self, x_shift, y_shift):
-        """Return a new state with moved anchor and piece."""
-        anchor_x, anchor_y = self.anchor
-        # tuple addition?
-        new_anchor = (anchor_x + x_shift, anchor_y + y_shift)
-        new_piece = shift_piece(self.piece, x_shift, y_shift)
-        return CheeseState(self.spawn, new_anchor, new_piece, self.grid)
+    def num_cheese(self):
+        return len(list(filter(lambda x: CHEESE_LABEL in x, self.grid)))
 
     def is_clear(self):
         """If the last row is clear, the whole stage is"""
@@ -187,6 +191,14 @@ class CheeseState(TetrisState):
             ):
                 return False
         return True
+
+    def move_anchor(self, x_shift, y_shift):
+        """Return a new state with moved anchor and piece."""
+        anchor_x, anchor_y = self.anchor
+        # tuple addition?
+        new_anchor = (anchor_x + x_shift, anchor_y + y_shift)
+        new_piece = shift_piece(self.piece, x_shift, y_shift)
+        return CheeseState(self.spawn, new_anchor, new_piece, self.grid)
 
     def can_lock(self):
         for x, y, label in self.piece:
@@ -274,21 +286,33 @@ class CheeseState(TetrisState):
         return CheeseState(self.spawn, self.anchor, new_piece, self.grid)
 
 
-# def send_garbage(state, garbage_label, garbage_count, hole_count):
-#     piece, grid = state
+def send_garbage(state, garbage_label, garbage_count, hole_count):
+    piece, grid = state
 
-#     new_grid = []
-#     for i in range(len(grid) - garbage_count):
-#         new_grid.append(grid[i + garbage_count])
+    new_grid = []
+    for i in range(len(grid) - garbage_count):
+        new_grid.append(grid[i + garbage_count])
 
-#     for g in range(len(grid) - garbage_count, len(grid)):
-#         to_hole = hole_count
-#         garbage_row = garbage_label * len(grid[0])
+    for g in range(len(grid) - garbage_count, len(grid)):
+        to_hole = hole_count
+        garbage_row = garbage_label * len(grid[0])
 
-#         while to_hole != 0:
-#             hole_index = random.choice(range(len(grid[0])))
-#             garbage_row = garbage_row[:hole_index] + " " + garbage_row[hole_index:-1]
-#             to_hole -= 1
-#         new_grid.append(garbage_row)
-#     new_state = (piece, tuple(new_grid))
-#     return (piece, tuple(new_grid))
+        while to_hole != 0:
+            hole_index = random.choice(range(len(grid[0])))
+            garbage_row = garbage_row[:hole_index] + " " + garbage_row[hole_index:-1]
+            to_hole -= 1
+        new_grid.append(garbage_row)
+    new_state = (piece, tuple(new_grid))
+    return (piece, tuple(new_grid))
+
+
+def rotate_left(anchor, piece):
+    new_piece = []
+    anchor_x, anchor_y = anchor
+    for x, y, label in piece:
+        offset_x, offset_y = (x - anchor_x, y - anchor_y)
+        new_offset_x, new_offset_y = (offset_y, -1 * offset_x)
+        new_x, new_y = (new_offset_x + anchor_x, new_offset_y + anchor_y)
+        new_piece.append((new_x, new_y, label))
+    new_piece = tuple(new_piece)
+    return new_piece
