@@ -10,6 +10,29 @@ import game, queue, heapq
 #         self.path = path
 
 
+def tree_depth_first_search(game):
+    frontier = []
+
+    start_node = (game.get_start_state(), 0, [])
+
+    frontier.append(start_node)
+
+    while not frontier:
+        current_state, current_cost, current_path = frontier.pop()
+        if game.is_goal(current_state):
+            return current_path
+
+        for new_state, new_action, action_cost in game.get_successors(current_state):
+            new_node = (
+                new_state,
+                current_cost + action_cost,
+                current_path + [new_action],
+            )
+
+            frontier.append(new_state)
+    return []
+
+
 def breadth_first_search(game):
 
     frontier = queue.SimpleQueue()
@@ -39,6 +62,7 @@ def breadth_first_search(game):
     # no path found
     return []
 
+
 def Astar_search(game, heurisitic):
 
     frontier = PriorityQueue()
@@ -67,18 +91,20 @@ def Astar_search(game, heurisitic):
                 frontier.update(new_node, new_node[1] + heurisitic(new_node[0]))
 
     # no path found
-    #print(str(explored))
+    # print(str(explored))
     return []
 
-#code from CS188 Berkeley for PriorityQueue with update function modified
+
+# code from CS188 Berkeley for PriorityQueue with update function modified
 class PriorityQueue:
     """
-      Implements a priority queue data structure. Each inserted item
-      has a priority associated with it and the client is usually interested
-      in quick retrieval of the lowest-priority item in the queue. This
-      data structure allows O(1) access to the lowest-priority item.
+    Implements a priority queue data structure. Each inserted item
+    has a priority associated with it and the client is usually interested
+    in quick retrieval of the lowest-priority item in the queue. This
+    data structure allows O(1) access to the lowest-priority item.
     """
-    def  __init__(self):
+
+    def __init__(self):
         self.heap = []
         self.count = 0
 
@@ -109,5 +135,7 @@ class PriorityQueue:
         else:
             self.push(item, priority)
 
+
 from game import CheeseGame
+
 Astar_search(CheeseGame(), lambda a: 0)
