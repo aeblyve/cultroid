@@ -16,6 +16,18 @@ def c_count(state):
 def b_count(state):
     return grid_count_bool(state.grid, "b")
 
+def w_something(state):
+    total = 0
+    r = 1.05
+    grid = state.grid
+    for rind in range(len(grid)):
+        count = 0
+        for col in grid[rind]:
+            if col != "_":
+                count += 1
+        total += count * (r ** rind)
+    return total/70
+
 def stable(state):
     return 1
 
@@ -34,8 +46,37 @@ def weak_hole_count(state):
                 count += 1
     return count
 
+def weaker_hole_count(state):
+    count = 0
+    grid = state.grid
+    for row in range(1, len(grid)):
+        for col in range(len(grid[row])):
+            if grid[row][col] == "_" and grid[row - 1][col] != "_":
+                count += 1
+    return count
+
+#takado8 on github use this
+def bumpiness(state):
+    firstblock = []
+    grid = state.grid
+    for col in range(len(grid[0])):
+        count = 0
+        for row in range(len(grid)):
+            if grid[row][col] != "_":
+                break
+            count += 1
+        firstblock += [count]
+
+    bump = 0
+    for i in range(len(firstblock) -1):
+        bump += abs(firstblock[i + 1] - firstblock[i])
+    return bump
+
 def c_cleared_reward(before, after):
     return c_count(before) - c_count(after)
+
+def any_cleared_reward(before, after):
+    return 3 + grid_count_bool(after.grid, "_") - grid_count_bool(before.grid, "_")
 
 features = []
 class Player:
@@ -46,22 +87,31 @@ class Player:
         self.epsilon = epsilon
 
     def play_game(self, game):
+        averagereward = 20.0
+        successcount = 0
         for i in range(self.numtrails):
+            totalreward = 0
             state = game.get_start_state()
             for _ in range(self.numsteps):
                 if game.is_goal(state):
+                    successcount += 1
                     break
                 succesor = self.pick_succesor(game, state)
                 if succesor is None:
                     break
                 self.evaluator.update(state, succesor)
+                totalreward += succesor[2]
+                #print(state)
                 state = succesor[0]
             print("Trial: " + str(i) + "/" + str(self.numtrails))
             print("Game Done, End Board")
             print(state)
             print(self.evaluator)
+            averagereward = totalreward / (i + 1) + averagereward * (i) / (i + 1)
         print("Trials done")
         print(self.evaluator)
+        print("Average: " + str(averagereward))
+        print("SuccessCount: " + str(successcount))
 
     def pick_succesor(self, game, state):
         successors = game.get_successors(state)
@@ -78,7 +128,7 @@ class Player:
 
 
 class QFeatureAgent:
-    def __init__(self, features, alpha= .000001, gamma = .96):
+    def __init__(self, features, alpha= .00001, gamma = .96):
         self.features = features
         self.weights = dict()
         self.alpha = alpha
@@ -109,22 +159,27 @@ class QFeatureAgent:
 #PROBLEM: Instability with max_hegiht and weak_hole_count,
 # is it a bug or a consequence of how problem is set up, will investigate later
 from simpletetris import CheeseGameLocked, Piece
-tqfeature = QFeatureAgent([c_count, b_count, max_height, weak_hole_count, stable])
+tqfeature = QFeatureAgent([c_count, b_count, max_height, weaker_hole_count, bumpiness, w_something, stable])
 "Below I've listed where the values fall, as close as this is going to get, not good enough, need more"
 "Note that below numbers are on top are for 100 (basically until it can't)"
 " moves which due to suboptimality changes numbers, perhaps lower trials"
 "more accurate"
-#tqfeature.set_weight(c_count,  0.29405214714047423)
-#tqfeature.set_weight(b_count, -0.3120097818120923)
-#tqfeature.set_weight(max_height, -0.673233201061796)
-#tqfeature.set_weight(weak_hole_count, -0.5826443124031087)
-#tqfeature.set_weight(stable, -2.1236049500924117)
-tqfeature.set_weight(c_count,  -1.5295760238498057)
-tqfeature.set_weight(b_count, -5.020695363641185)
-tqfeature.set_weight(max_height, -1.9736094532636106)
-tqfeature.set_weight(weak_hole_count, -1.479467849635487)
-tqfeature.set_weight(stable, -2.3084748728964364)
-tplayer = Player(tqfeature, 15, 300000)
-game = CheeseGameLocked()
+#tqfeature.set_weight(c_count, 1.6)
+#tqfeature.set_weight(b_count, 0.5)
+#tqfeature.set_weight(max_height, -.25)
+#tqfeature.set_weight(weaker_hole_count, -1.7)
+#tqfeature.set_weight(bumpiness, -.15)
+#tqfeature.set_weight(w_something, 1)
+#tqfeature.set_weight(stable, 0)
+
+tqfeature.set_weight(c_count, .5)
+tqfeature.set_weight(b_count, -0.035)
+tqfeature.set_weight(max_height, -.35)
+tqfeature.set_weight(weaker_hole_count, -1.85)
+tqfeature.set_weight(bumpiness, -.1)
+tqfeature.set_weight(w_something, .94)
+tqfeature.set_weight(stable, 0)
+tplayer = Player(tqfeature, 10000, 1000, 0.005)
+game = CheeseGameLocked(10, 20, 1, 9)
 game.set_reward(c_cleared_reward)
 tplayer.play_game(game)
