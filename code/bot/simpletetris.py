@@ -182,8 +182,11 @@ class CheeseGameLocked:
     def set_reward(self, reward):
         self.reward = reward
 
-    def get_successors(self, state):
-        piece = random.choice(self.pieces)
+    def get_successors(self, state, given=None):
+        if given is None:
+            piece = random.choice(self.pieces)
+        else:
+            piece = given
         successors = []
         explored = set()
         for i in range(4):

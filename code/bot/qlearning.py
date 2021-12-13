@@ -111,12 +111,20 @@ class QFeatureAgent:
 from simpletetris import CheeseGameLocked, Piece
 tqfeature = QFeatureAgent([c_count, b_count, max_height, weak_hole_count, stable])
 "Below I've listed where the values fall, as close as this is going to get, not good enough, need more"
-tqfeature.set_weight(c_count,  0.29405214714047423)
-tqfeature.set_weight(b_count, -0.3120097818120923)
-tqfeature.set_weight(max_height, -0.673233201061796)
-tqfeature.set_weight(weak_hole_count, -0.5826443124031087)
-tqfeature.set_weight(stable, -2.1236049500924117)
-tplayer = Player(tqfeature, 100, 1000)
+"Note that below numbers are on top are for 100 (basically until it can't)"
+" moves which due to suboptimality changes numbers, perhaps lower trials"
+"more accurate"
+#tqfeature.set_weight(c_count,  0.29405214714047423)
+#tqfeature.set_weight(b_count, -0.3120097818120923)
+#tqfeature.set_weight(max_height, -0.673233201061796)
+#tqfeature.set_weight(weak_hole_count, -0.5826443124031087)
+#tqfeature.set_weight(stable, -2.1236049500924117)
+tqfeature.set_weight(c_count,  -1.5295760238498057)
+tqfeature.set_weight(b_count, -5.020695363641185)
+tqfeature.set_weight(max_height, -1.9736094532636106)
+tqfeature.set_weight(weak_hole_count, -1.479467849635487)
+tqfeature.set_weight(stable, -2.3084748728964364)
+tplayer = Player(tqfeature, 15, 300000)
 game = CheeseGameLocked()
 game.set_reward(c_cleared_reward)
 tplayer.play_game(game)
