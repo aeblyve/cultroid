@@ -188,7 +188,7 @@ class CheeseGameLocked:
         else:
             piece = given
         successors = []
-        explored = set()
+        explored = {False}
         for i in range(4):
             xrange, yrange = piece.bound_ranges()
             piece = piece.change_center((0 - xrange[0], 0 - yrange[1]))
@@ -198,7 +198,7 @@ class CheeseGameLocked:
                     successors.append((newstate, (i, offset), self.reward(state, newstate)))
             piece = piece.rotate_left()
 
-        return filter(lambda x: x[0] is not False, successors)
+        return successors
 
     def is_goal(self, state):
         return not state.contains("c")
