@@ -103,8 +103,6 @@ features = []
 
 
 class Player:
-    pass
-
     def __init__(self, evaluator, numsteps=100, numtrails=1, epsilon=0.05):
         self.evaluator = evaluator
         self.numsteps = numsteps
@@ -150,6 +148,28 @@ class Player:
         return successors[maxind]
 
 
+class LookaheadQAgent:
+    """Get better results by looking one move ahead"""
+
+    def __init__(self, evaluator, game):
+        self.evaluator = evaluator
+        self.game = game
+        self.pieces = game.pieces
+
+    def set_weight(self, func, val):
+        self.weights[func] = val
+
+    def value(self, state):
+        overall_value = 0
+        for piece in self.pieces:
+            for succ in game.get_successors(state, given=piece):
+                overall_value += (1 / len(self.pieces)) * self.evaluator(succ)
+        return overall_value
+
+    def update(self, original, successor):
+        pass
+
+
 class QFeatureAgent:
     def __init__(self, features, alpha=0.00001, gamma=0.96):
         self.features = features
@@ -188,7 +208,15 @@ class QFeatureAgent:
 from simpletetris import CheeseGameLocked, Piece
 
 tqfeature = QFeatureAgent(
-    [c_count, b_count, max_height, weaker_hole_count, bumpiness, w_something, stable]
+    [
+        c_count,
+        b_count,
+        max_height,
+        weaker_hole_count,
+        bumpiness,
+        w_something,
+        stable,
+    ]
 )
 "Below I've listed where the values fall, as close as this is going to get, not good enough, need more"
 "Note that below numbers are on top are for 100 (basically until it can't)"
