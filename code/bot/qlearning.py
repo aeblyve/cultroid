@@ -1,6 +1,7 @@
 import random
 
-#Possible Future Features: Holes, Height
+# Possible Future Features: Holes, Height
+
 
 def grid_count_bool(grid, test):
     count = 0
@@ -10,11 +11,14 @@ def grid_count_bool(grid, test):
                 count += 1
     return count
 
+
 def c_count(state):
     return grid_count_bool(state.grid, "c")
 
+
 def b_count(state):
     return grid_count_bool(state.grid, "b")
+
 
 def w_something(state):
     total = 0
@@ -26,25 +30,34 @@ def w_something(state):
             if col != "_":
                 count += 1
         total += count * (r ** rind)
-    return total/70
+    return total / 70
+
 
 def stable(state):
     return 1
 
+
 def max_height(state):
     for rind in range(len(state.grid)):
         for col in state.grid[rind]:
-            if col != '_':
+            if col != "_":
                 return len(state.grid) - rind - 1
-#for some reason "unstable" might be a bug in QLearningAgent
+
+
+# for some reason "unstable" might be a bug in QLearningAgent
 def weak_hole_count(state):
     count = 0
     grid = state.grid
     for row in range(1, len(grid) - 1):
         for col in range(len(grid[row])):
-            if grid[row][col] == "_" and grid[row + 1][col] != "_" and grid[row - 1][col] != "_":
+            if (
+                grid[row][col] == "_"
+                and grid[row + 1][col] != "_"
+                and grid[row - 1][col] != "_"
+            ):
                 count += 1
     return count
+
 
 def weaker_hole_count(state):
     count = 0
@@ -55,7 +68,8 @@ def weaker_hole_count(state):
                 count += 1
     return count
 
-#takado8 on github use this
+
+# takado8 on github use this
 def bumpiness(state):
     firstblock = []
     grid = state.grid
@@ -68,19 +82,30 @@ def bumpiness(state):
         firstblock += [count]
 
     bump = 0
-    for i in range(len(firstblock) -1):
+    for i in range(len(firstblock) - 1):
         bump += abs(firstblock[i + 1] - firstblock[i])
     return bump
+
 
 def c_cleared_reward(before, after):
     return c_count(before) - c_count(after)
 
+
 def any_cleared_reward(before, after):
     return 3 + grid_count_bool(after.grid, "_") - grid_count_bool(before.grid, "_")
 
+
+def c_open(state):
+    return state.top_row().count("c")
+
+
 features = []
+
+
 class Player:
-    def __init__(self, evaluator, numsteps=100, numtrails=1, epsilon=.05):
+    pass
+
+    def __init__(self, evaluator, numsteps=100, numtrails=1, epsilon=0.05):
         self.evaluator = evaluator
         self.numsteps = numsteps
         self.numtrails = numtrails
@@ -101,7 +126,7 @@ class Player:
                     break
                 self.evaluator.update(state, succesor)
                 totalreward += succesor[2]
-                #print(state)
+                # print(state)
                 state = succesor[0]
             print("Trial: " + str(i) + "/" + str(self.numtrails))
             print("Game Done, End Board")
@@ -125,10 +150,8 @@ class Player:
         return successors[maxind]
 
 
-
-
 class QFeatureAgent:
-    def __init__(self, features, alpha= .00001, gamma = .96):
+    def __init__(self, features, alpha=0.00001, gamma=0.96):
         self.features = features
         self.weights = dict()
         self.alpha = alpha
@@ -148,36 +171,43 @@ class QFeatureAgent:
             total += self.weights[feature] * feature(state)
         return total
 
-    #succesor tuple of (next state, action, reward)
+    # succesor tuple of (next state, action, reward)
     def update(self, original, successor):
-        difference = successor[2] + self.gamma * self.value(successor[0]) - self.value(original)
+        difference = (
+            successor[2] + self.gamma * self.value(successor[0]) - self.value(original)
+        )
         for feature in self.features:
-            self.weights[feature] = self.weights[feature] + self.alpha * difference * feature(original)
+            self.weights[feature] = self.weights[
+                feature
+            ] + self.alpha * difference * feature(original)
         difference = difference + 0
 
 
-#PROBLEM: Instability with max_hegiht and weak_hole_count,
+# PROBLEM: Instability with max_hegiht and weak_hole_count,
 # is it a bug or a consequence of how problem is set up, will investigate later
 from simpletetris import CheeseGameLocked, Piece
-tqfeature = QFeatureAgent([c_count, b_count, max_height, weaker_hole_count, bumpiness, w_something, stable])
+
+tqfeature = QFeatureAgent(
+    [c_count, b_count, max_height, weaker_hole_count, bumpiness, w_something, stable]
+)
 "Below I've listed where the values fall, as close as this is going to get, not good enough, need more"
 "Note that below numbers are on top are for 100 (basically until it can't)"
 " moves which due to suboptimality changes numbers, perhaps lower trials"
 "more accurate"
-#tqfeature.set_weight(c_count, 1.6)
-#tqfeature.set_weight(b_count, 0.5)
-#tqfeature.set_weight(max_height, -.25)
-#tqfeature.set_weight(weaker_hole_count, -1.7)
-#tqfeature.set_weight(bumpiness, -.15)
-#tqfeature.set_weight(w_something, 1)
-#tqfeature.set_weight(stable, 0)
+# tqfeature.set_weight(c_count, 1.6)
+# tqfeature.set_weight(b_count, 0.5)
+# tqfeature.set_weight(max_height, -.25)
+# tqfeature.set_weight(weaker_hole_count, -1.7)
+# tqfeature.set_weight(bumpiness, -.15)
+# tqfeature.set_weight(w_something, 1)
+# tqfeature.set_weight(stable, 0)
 
-tqfeature.set_weight(c_count, .5)
+tqfeature.set_weight(c_count, 0.5)
 tqfeature.set_weight(b_count, -0.035)
-tqfeature.set_weight(max_height, -.35)
+tqfeature.set_weight(max_height, -0.35)
 tqfeature.set_weight(weaker_hole_count, -1.85)
-tqfeature.set_weight(bumpiness, -.1)
-tqfeature.set_weight(w_something, .94)
+tqfeature.set_weight(bumpiness, -0.1)
+tqfeature.set_weight(w_something, 0.94)
 tqfeature.set_weight(stable, 0)
 tplayer = Player(tqfeature, 10000, 1000, 0.005)
 game = CheeseGameLocked(10, 20, 1, 9)

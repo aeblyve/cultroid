@@ -1,6 +1,8 @@
 import random
 
 "Abstraction for Piece, Stores necessary data and some basic functions"
+
+
 class Piece:
     def __init__(self, center, positions, label):
         self.center = center
@@ -24,7 +26,11 @@ class Piece:
         for x, y in self.positions:
             new_piece.append((x + change_x, y + change_y))
         new_piece = tuple(new_piece)
-        return Piece((self.center[0] + change_x, self.center[1] + change_y), new_piece, self.label)
+        return Piece(
+            (self.center[0] + change_x, self.center[1] + change_y),
+            new_piece,
+            self.label,
+        )
 
     def bound_ranges(self):
         max_x = None
@@ -42,7 +48,10 @@ class Piece:
                 min_y = y
         return (min_x, max_x), (min_y, max_y)
 
+
 "Class fot build Tetris Grids, supports clogging with random trash"
+
+
 class TetrisGridBuilder:
     def __init__(self):
         self.grid = [[]]
@@ -63,8 +72,14 @@ class TetrisGridBuilder:
         self.set_grid(grid)
         return self
 
-    def new_cheese_state(self,
-            x_dimension=10, y_dimension=20, hole_count=1, cheese_count=9, cheese_char="c"):
+    def new_cheese_state(
+        self,
+        x_dimension=10,
+        y_dimension=20,
+        hole_count=1,
+        cheese_count=9,
+        cheese_char="c",
+    ):
         self.set_blank_grid(x_dimension, y_dimension, "_")
 
         for g in range(y_dimension - cheese_count, y_dimension):
@@ -81,7 +96,10 @@ class TetrisGridBuilder:
     def build(self):
         return TetrisGrid(tuple([tuple(row) for row in self.grid]), self.blank)
 
+
 "Class for Grid"
+
+
 class Grid:
     def __init__(self, grid, blank):
         self.grid = grid
@@ -102,6 +120,7 @@ class Grid:
             out += " " + str(i) + " \n"
         return out
 
+
 def row_is_full(row, blank):
     for block in row:
         if block == blank:
@@ -119,19 +138,22 @@ def clear_rows(grid, blank):
         filtered.insert(0, blank_row)
     return tuple(filtered)
 
+
 "Represents the Tetris Grid"
+
+
 class TetrisGrid(Grid):
-   #to drop from sky, merely place piece in the clouds
+    # to drop from sky, merely place piece in the clouds
 
     def hard_drop(self, piece):
         y_delta = float("inf")
 
         for x, y in piece.positions:
-             for y_i in range(y, len(self.grid)):
+            for y_i in range(y, len(self.grid)):
                 if y_i >= 0 and self.grid[y_i][x] != self.blank:
                     y_delta = min(y_delta, y_i - y)
                     break
-             y_delta = min(y_delta, len(self.grid) - y)
+            y_delta = min(y_delta, len(self.grid) - y)
 
         new_piece = piece.change_center((0, y_delta - 1))
         return self.lock_piece(new_piece)
@@ -146,13 +168,28 @@ class TetrisGrid(Grid):
         newgrid = clear_rows(newgrid, self.blank)
         return TetrisGrid(tuple([tuple(row) for row in newgrid]), self.blank)
 
-    #See if a given thing is contained in the grid
+    # See if a given thing is contained in the grid
     def contains(self, symbol):
         for row in self.grid:
             for col in row:
                 if col == symbol:
                     return True
         return False
+
+    def top_row(self):
+        """returns a tuple representing the flattened "top contour" """
+        row = []
+        for x in range(len(self.grid[0])):
+            empty = True
+            for y in range(len(self.grid)):
+                if self.grid[y][x] != self.blank:
+                    row.append(self.grid[y][x])
+                    empty = False
+                    break
+            if empty:
+                row.append(self.blank)
+        return tuple(row)
+
 
 T_PIECE = Piece((0, 0), ((0, -1), (-1, 0), (0, 0), (1, 0)), "b")
 L_PIECE = Piece((0, 0), ((0, 0), (1, 0), (0, -1), (0, -2)), "b")
@@ -164,10 +201,18 @@ I_PIECE = Piece((0, -1), ((0, 0), (0, -1), (0, -2), (0, -3)), "b")
 
 PIECES = [T_PIECE, L_PIECE, J_PIECE, O_PIECE, S_PIECE, Z_PIECE, I_PIECE]
 
+
 class CheeseGameLocked:
     """Clear all the cheese to win."""
 
-    def __init__(self, x_dimension=10, y_dimension=20, hole_count=1, cheese_count=9, pieces=PIECES):
+    def __init__(
+        self,
+        x_dimension=10,
+        y_dimension=20,
+        hole_count=1,
+        cheese_count=9,
+        pieces=PIECES,
+    ):
         self.x_dimension = x_dimension
         self.y_dimension = y_dimension
         self.hole_count = hole_count
@@ -176,8 +221,17 @@ class CheeseGameLocked:
         self.reward = lambda before, after: 0
 
     def get_start_state(self):
-        return TetrisGridBuilder().new_cheese_state(self.x_dimension, self.y_dimension,
-                                              self.hole_count, self.cheese_count, "c").build()
+        return (
+            TetrisGridBuilder()
+            .new_cheese_state(
+                self.x_dimension,
+                self.y_dimension,
+                self.hole_count,
+                self.cheese_count,
+                "c",
+            )
+            .build()
+        )
 
     def set_reward(self, reward):
         self.reward = reward
@@ -195,7 +249,9 @@ class CheeseGameLocked:
             for offset in range(len(state.grid[0]) - xrange[1] + xrange[0]):
                 newstate = state.hard_drop(piece.change_center((offset, 0)))
                 if newstate not in explored:
-                    successors.append((newstate, (i, offset), self.reward(state, newstate)))
+                    successors.append(
+                        (newstate, (i, offset), self.reward(state, newstate))
+                    )
             piece = piece.rotate_left()
 
         return successors
