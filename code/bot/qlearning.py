@@ -149,7 +149,7 @@ class Player:
 
 
 class LookaheadQAgent:
-    """Get better results by looking one move ahead"""
+    """Get better results by looking ahead"""
 
     def __init__(self, evaluator, game):
         self.evaluator = evaluator
@@ -159,12 +159,15 @@ class LookaheadQAgent:
     def set_weight(self, func, val):
         self.weights[func] = val
 
-    def value(self, state):
+    def value(self, state, lookahead=1):
         value = 0
         for piece in self.pieces:
             piece_value = 0
             for succ in game.get_successors(state, given=piece):
-                piece_value += self.evaluator(succ)
+                if lookahead == 1:
+                    piece_value += self.evaluator(succ)
+                else:
+                    piece_value += self.value(succ, lookahead - 1)
             value += (1 / len(self.pieces)) * piece_value
         return value
 
