@@ -160,10 +160,12 @@ class LookaheadQAgent:
         self.weights[func] = val
 
     def value(self, state):
-        overall_value = 0
+        value = 0
         for piece in self.pieces:
+            piece_value = 0
             for succ in game.get_successors(state, given=piece):
-                overall_value += (1 / len(self.pieces)) * self.evaluator(succ)
+                piece_value += self.evaluator(succ)
+            value += (1 / len(self.pieces)) * piece_value
         return overall_value
 
     def update(self, original, successor):
