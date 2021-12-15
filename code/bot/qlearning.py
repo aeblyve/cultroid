@@ -166,7 +166,7 @@ class LookaheadQAgent:
             for succ in game.get_successors(state, given=piece):
                 piece_value += self.evaluator(succ)
             value += (1 / len(self.pieces)) * piece_value
-        return overall_value
+        return value
 
     def update(self, original, successor):
         pass
